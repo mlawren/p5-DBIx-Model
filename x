@@ -42,14 +42,17 @@ while ( my $t_ref = $sth->fetchrow_hashref ) {
     if ( $t_ref->{TABLE_TYPE} eq 'TABLE' ) {
         unless ( exclude( $t_ref->{TABLE_NAME}, $opts->{exclude} ) ) {
             my $table = $db->add_table( name => $t_ref->{TABLE_NAME} );
+            my @primary = $dbh->primary_key( '%', '%', $t_ref->{TABLE_NAME} );
             my $sth2 = $dbh->column_info( '%', '%', $t_ref->{TABLE_NAME}, '%' );
 
             while ( my $c_ref = $sth2->fetchrow_hashref ) {
+                my $pri = grep { $c_ref->{COLUMN_NAME} eq $_ } @primary;
                 $table->add_column(
                     name     => $c_ref->{COLUMN_NAME},
                     nullable => $c_ref->{NULLABLE},
                     size     => $c_ref->{COLUMN_SIZE},
                     type     => $c_ref->{TYPE_NAME},
+                    primary  => $pri ? 1 : 0,
                 );
             }
         }

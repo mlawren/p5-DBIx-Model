@@ -19,6 +19,12 @@ has name => (
     required => 1,
 );
 
+has primary => (
+    is      => 'ro',
+    isa     => Bool,
+    default => sub { 0 },
+);
+
 has size => (
     is  => 'ro',
     isa => Int | Undef,

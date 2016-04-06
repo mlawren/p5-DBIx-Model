@@ -31,12 +31,6 @@ sub add_column {
     return $col;
 }
 
-sub columns {
-    my $self = shift;
-    return @{ $self->_columns } if wantarray;
-    return $self->_columns;
-}
-
 sub as_string {
     my $self   = shift;
     my $prefix = shift;
@@ -46,7 +40,23 @@ sub as_string {
         $str .= "\n" . $col->as_string( $prefix . '  ' );
     }
 
+    if ( my @pri = $self->primaries ) {
+        $str .=
+          "\n${prefix}  PRIMARY(" . join( ',', map { $_->name } @pri ) . ')';
+    }
+
     return $str;
+}
+
+sub columns {
+    my $self = shift;
+    return @{ $self->_columns } if wantarray;
+    return $self->_columns;
+}
+
+sub primaries {
+    my $self = shift;
+    return grep { $_->primary } $self->columns;
 }
 
 1;

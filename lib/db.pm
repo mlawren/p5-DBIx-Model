@@ -50,12 +50,4 @@ sub as_string {
     return $str;
 }
 
-my $db = db->new( name => 'bif' );
-
-my $table = $db->add_table( name => 'bifkv' );
-$table->add_column( name => 'bifkv',   type => 'int' );
-$table->add_column( name => 'id',      type => 'int' );
-$table->add_column( name => 'node_id', type => 'int' );
-$table->add_column( name => 'name',    type => 'varchar' );
-
-print $db->as_string . "\n";
+1;

@@ -108,4 +108,4 @@ foreach my $fk (@fk) {
     );
 }
 
-print $db->as_string;
+print $db->as_string . "\n";

@@ -47,6 +47,7 @@ sub as_string {
     my $prefix = shift;
     my $str    = $prefix . $self->name . ' ' . $self->type;
     $str .= '(' . $self->size . ')' if $self->size;
+    $str .= ' NOT NULL' unless $self->nullable;
     return $str;
 }
 

@@ -1,9 +1,10 @@
 package table;
 use strict;
 use warnings;
+use column;
+use fk;
 use Types::Standard qw/ArrayRef/;
 use Moo;
-use column;
 
 our $VERSION = '0.0.1';
 
@@ -24,11 +25,25 @@ has name => (
     required => 1,
 );
 
+has _foreign_keys => (
+    is       => 'ro',
+    isa      => ArrayRef,
+    default  => sub { [] },
+    required => 1,
+);
+
 sub add_column {
     my $self = shift;
     my $col = column->new( @_, table => $self );
     push( @{ $self->_columns }, $col );
     return $col;
+}
+
+sub add_foreign_key {
+    my $self = shift;
+    my $fk = fk->new( @_, table => $self );
+    push( @{ $self->_foreign_keys }, $fk );
+    return $fk;
 }
 
 sub as_string {
@@ -45,6 +60,10 @@ sub as_string {
           "\n${prefix}  PRIMARY(" . join( ',', map { $_->name } @pri ) . ')';
     }
 
+    foreach my $fk ( $self->foreign_keys ) {
+        $str .= "\n" . $fk->as_string( $prefix . '  ' );
+    }
+
     return $str;
 }
 
@@ -57,6 +76,12 @@ sub columns {
 sub primaries {
     my $self = shift;
     return grep { $_->primary } $self->columns;
+}
+
+sub foreign_keys {
+    my $self = shift;
+    return @{ $self->_foreign_keys } if wantarray;
+    return $self->_foreign_keys;
 }
 
 1;

@@ -26,7 +26,7 @@ sub DBI::db::model {
                     name     => $c_ref->{COLUMN_NAME},
                     nullable => $c_ref->{NULLABLE},
                     size     => $c_ref->{COLUMN_SIZE},
-                    type     => $c_ref->{TYPE_NAME},
+                    type     => $c_ref->{TYPE_NAME} || '*UNKNOWN*',
                     primary  => $pri ? 1 : 0,
                 );
             }

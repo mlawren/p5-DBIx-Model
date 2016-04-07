@@ -7,9 +7,10 @@ on configure => sub {
 };
 
 on runtime => sub {
-    requires 'Carp'     => 0;
-    requires 'Moo'      => 0;
-    requires 'OptArgs2' => 0;
+    requires 'Carp'      => 0;
+    requires 'GraphViz2' => 0;
+    requires 'Moo'       => 0;
+    requires 'OptArgs2'  => 0;
 };
 
 on test => sub {

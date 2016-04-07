@@ -2,13 +2,21 @@
 use strict;
 use warnings;
 use lib 'lib';
+use lib '/home/mark/src/bif/.direnv/perl5/lib/perl5/';
 use DBI;
 use DBIx::Model;
+use GraphViz2;
 use OptArgs;
 
 arg dsn => (
     isa      => 'Str',
     comment  => 'DBI connection string',
+    required => 1,
+);
+
+arg output => (
+    isa      => 'Str',
+    comment  => 'graphviz output filename',
     required => 1,
 );
 
@@ -33,6 +41,7 @@ opt name => (
 
 my $opts = optargs;
 $opts->{dsn} = 'dbi:SQLite:dbname=' . $opts->{dsn} if -f $opts->{dsn};
+$opts->{format} = $opts->{output} =~ s/.*\.(.*)/$1/r;
 
 my $dbh = DBI->connect( $opts->{dsn} );
 my $db  = $dbh->model(
@@ -50,3 +59,17 @@ sub exclude {
 }
 
 print $db->as_string . "\n";
+
+my $graph = GraphViz2->new(
+    graph  => { label    => $db->name, rankdir => 'TB' },
+    edge   => { color    => 'grey' },
+    global => { directed => 1 },
+    graph  => { rankdir  => 'TB' },
+    node   => { color    => 'blue',    shape   => 'oval' },
+);
+
+$graph->run(
+    format      => $opts->{format},
+    output_file => $opts->{output},
+);
+

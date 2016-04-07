@@ -50,4 +50,9 @@ sub as_string {
     return $str;
 }
 
+sub full_name {
+    my $self = shift;
+    return $self->table->name . '.' . $self->name;
+}
+
 1;

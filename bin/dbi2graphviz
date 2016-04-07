@@ -7,7 +7,10 @@ use DBI;
 use DBIx::Model;
 use GraphViz2;
 use OptArgs;
+use Time::Piece;
 use XML::API;
+
+our $VERSION = '0.0.1';
 
 arg dsn => (
     isa      => 'Str',
@@ -89,9 +92,46 @@ sub exclude {
     return 1;
 }
 
+my $x = XML::API->new;
+$x->table_open(
+    {
+        align  => 'left',
+        border => 0,
+    }
+);
+
+$x->tr_open;
+$x->td( { align => 'left' }, '.' );
+$x->td('');
+$x->tr_close;
+
+$x->tr_open;
+$x->td_open( { align => 'left', } );
+$x->b('Database:');
+$x->td_close;
+$x->td( { align => 'left', }, $db->name );
+$x->tr_close;
+
+$x->tr_open;
+$x->td_open( { align => 'left', } );
+$x->b('Generated:');
+$x->td_close;
+my $t  = localtime;
+my $tz = sprintf( "%+.2d%.2d",
+    int( $t->tzoffset / 3600 ),
+    ( abs( $t->tzoffset ) - int( abs( $t->tzoffset ) / 3600 ) * 3600 ) / 60 );
+
+$x->td( { align => 'left', },
+    $t->strftime('%F %T') . ' ' . $tz . ' by dbi2graphviz v' . $VERSION );
+$x->tr_close;
+
+$x->table_close;
+
+( $x = $x->_fast_string ) =~ s/.*?>//m;
+
 my $graph = GraphViz2->new(
     graph => {
-        label     => $db->name,
+        label     => '<' . $x . '>',
         rankdir   => uc( $opts->{rankdir} ),
         labeljust => 'l',
     },

@@ -12,16 +12,23 @@ arg dsn => (
     required => 1,
 );
 
-opt name => (
-    isa     => 'Str',
-    comment => 'name of the database',
-);
-
 opt exclude => (
     alias   => 'e',
     isa     => 'ArrayRef',
     comment => 'table name(s) to exclude',
     default => sub { [] },
+);
+
+opt help => (
+    alias   => 'h',
+    isa     => 'Bool',
+    comment => 'print full help message and exit',
+    ishelp  => 1,
+);
+
+opt name => (
+    isa     => 'Str',
+    comment => 'name of the database',
 );
 
 my $opts  = optargs;

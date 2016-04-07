@@ -133,6 +133,10 @@ foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
     $x->tr_close;
 
     foreach my $col ( $table->columns ) {
+        my $color =
+            $col->target_count ? $table_colors{ $table->name }
+          : $col->ref_count    ? 'lightgrey'
+          :                      undef;
         $x->tr_open;
         $x->td_open(
             {
@@ -140,9 +144,7 @@ foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
                 border => 0,
                 port   => $col->name,
                 width  => 5,
-                $col->target_count
-                ? ( bgcolor => $table_colors{ $table->name } )
-                : (),
+                $color ? ( bgcolor => $color ) : (),
             },
             $col->name . ' '
         );
@@ -170,8 +172,9 @@ foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
 my %seen;
 
 foreach my $fk ( map { $_->foreign_keys } $db->tables ) {
-    next if exclude( $fk->table->name,    $opts->{exclude}, $opts->{include} );
-    next if exclude( $fk->to_table->name, $opts->{exclude}, $opts->{include} );
+    next if exclude( $fk->table->name, $opts->{exclude}, $opts->{include} );
+    next
+      if exclude( $fk->to_table->name, $opts->{exclude}, $opts->{include} );
 
     my @fcols = $fk->columns;
     my @tcols = $fk->to_columns;

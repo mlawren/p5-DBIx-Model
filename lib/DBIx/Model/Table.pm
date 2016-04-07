@@ -25,6 +25,12 @@ has name => (
     required => 1,
 );
 
+has ref_count => (
+    is      => 'rw',
+    isa     => Int,
+    default => 0,
+);
+
 has target_count => (
     is      => 'rw',
     isa     => Int,
@@ -71,6 +77,11 @@ sub as_string {
     }
 
     return $str;
+}
+
+sub bump_ref_count {
+    my $self = shift;
+    $self->ref_count( $self->ref_count + 1 );
 }
 
 sub bump_target_count {

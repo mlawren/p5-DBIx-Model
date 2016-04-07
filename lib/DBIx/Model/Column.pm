@@ -24,6 +24,12 @@ has primary => (
     default => sub { 0 },
 );
 
+has ref_count => (
+    is      => 'rw',
+    isa     => Int,
+    default => 0,
+);
+
 has size => (
     is  => 'ro',
     isa => Int | Undef,
@@ -54,6 +60,12 @@ sub as_string {
     $str .= '(' . $self->size . ')' if $self->size;
     $str .= ' NOT NULL' unless $self->nullable;
     return $str;
+}
+
+sub bump_ref_count {
+    my $self = shift;
+    $self->ref_count( $self->ref_count + 1 );
+    $self->table->bump_ref_count;
 }
 
 sub bump_target_count {

@@ -39,6 +39,7 @@ sub BUILD {
     my @list = @{ $self->_columns };
     foreach my $i ( 0 .. $#list ) {
         weaken( $self->_columns->[$i] );
+        $self->_columns->[$i]->bump_ref_count;
     }
 
     @list = @{ $self->_to_columns };

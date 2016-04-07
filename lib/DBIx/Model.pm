@@ -84,3 +84,8 @@ sub DBI::db::model {
 }
 
 1;
+
+=head1 NAME
+
+DBIx::Model - build a Perl object model of a database
+

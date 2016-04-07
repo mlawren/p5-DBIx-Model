@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use DBIx::Model::Column;
 use DBIx::Model::FK;
-use Types::Standard qw/ArrayRef/;
+use Types::Standard qw/ArrayRef Int/;
 use Moo;
 
 our $VERSION = '0.0.1';
@@ -23,6 +23,12 @@ has db => (
 has name => (
     is       => 'ro',
     required => 1,
+);
+
+has target_count => (
+    is      => 'rw',
+    isa     => Int,
+    default => 0,
 );
 
 has _foreign_keys => (
@@ -65,6 +71,11 @@ sub as_string {
     }
 
     return $str;
+}
+
+sub bump_target_count {
+    my $self = shift;
+    $self->target_count( $self->target_count + 1 );
 }
 
 sub columns {

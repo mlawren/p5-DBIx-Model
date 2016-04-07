@@ -53,6 +53,13 @@ opt name => (
     comment => 'name of the database',
 );
 
+opt rankdir => (
+    isa     => 'Str',
+    alias   => 'r',
+    comment => 'flow direction attribute',
+    default => 'tb',
+);
+
 my $opts = optargs;
 $opts->{dsn} = 'dbi:SQLite:dbname=' . $opts->{dsn} if -f $opts->{dsn};
 $opts->{name} ||= $opts->{dsn} =~ s/[^a-zA-z]+/_/gr =~ s/((^_)|(_$))//gr;
@@ -85,7 +92,7 @@ sub exclude {
 my $graph = GraphViz2->new(
     graph => {
         label     => $db->name,
-        rankdir   => 'TB',
+        rankdir   => uc( $opts->{rankdir} ),
         labeljust => 'l',
     },
     edge   => { color => 'grey' },

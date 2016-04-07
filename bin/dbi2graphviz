@@ -103,19 +103,31 @@ my $graph = GraphViz2->new(
 my @colors = (
     qw/
       gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
       gold 	gold1 	gold2 	gold3 	gold4
-      aliceblue 	antiquewhite 	antiquewhite1 	antiquewhite2 	antiquewhite3
-      wheat3 	wheat4 	white 	whitesmoke 	yellow
+      aliceblue
+      wheat3 	wheat4 	yellow
       yellow1 	yellow2 	yellow3 	yellow4 	yellowgreen
       /
 );
 
 my $i = 0;
-my %table_colors;
+my %col_colors;
+my @cols =
+  sort { $b->target_count <=> $a->target_count }
+  grep { $_->target_count }
+  map  { $_->columns } $db->tables;
+
+my %tab;
+foreach my $col (@cols) {
+    $col_colors{ $col->full_name } = $colors[$i];
+    $i++;
+}
+
 foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
 {
-    $table_colors{ $table->name } =
-      $table->target_count ? $colors[ $i++ ] : 'grey';
     next if exclude( $table->name, $opts->{exclude}, $opts->{include} );
 
     my $x = XML::API->new;
@@ -123,7 +135,7 @@ foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
         {
             align  => 'left',
             border => 1,
-            color  => 'grey',    #$table_colors{$table->name} || 'grey'
+            color  => 'grey',
         }
     );
     $x->tr_open;
@@ -134,7 +146,7 @@ foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
 
     foreach my $col ( $table->columns ) {
         my $color =
-            $col->target_count ? $table_colors{ $table->name }
+            $col->target_count ? $col_colors{ $col->full_name }
           : $col->ref_count    ? 'lightgrey'
           :                      undef;
         $x->tr_open;
@@ -187,7 +199,7 @@ foreach my $fk ( map { $_->foreign_keys } $db->tables ) {
         $graph->add_edge(
             from  => $fk->table->name . ':' . $fcol->name,
             to    => $fk->to_table->name . ':' . $tcol->name,
-            color => $table_colors{ $fk->to_table->name } || 'grey',
+            color => $col_colors{ $tcol->full_name } || 'grey',
         );
     }
 }

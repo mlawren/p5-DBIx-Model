@@ -41,6 +41,12 @@ opt help => (
     ishelp  => 1,
 );
 
+opt include => (
+    alias   => 'i',
+    isa     => 'ArrayRef',
+    comment => 'table name(s) to include',
+);
+
 opt name => (
     isa     => 'Str',
     comment => 'name of the database',
@@ -58,12 +64,21 @@ my $db  = $dbh->model(
 );
 
 sub exclude {
-    my $name = shift;
-    my $list = shift;
-    foreach my $try (@$list) {
+    my $name    = shift;
+    my $exclude = shift;
+    my $include = shift;
+
+    foreach my $try (@$exclude) {
         return 1 if $name =~ m/$try/;
     }
-    return 0;
+
+    return 0 unless $include;
+
+    foreach my $try (@$include) {
+        return 0 if $name =~ m/$try/;
+    }
+
+    return 1;
 }
 
 my $graph = GraphViz2->new(
@@ -85,7 +100,7 @@ my $graph = GraphViz2->new(
 );
 
 foreach my $table ( $db->tables ) {
-    next if exclude( $table->name, $opts->{exclude} );
+    next if exclude( $table->name, $opts->{exclude}, $opts->{include} );
 
     my @labels = ( { text => '{<' . $table->name . '>' . $table->name } );
     my $i = 1;
@@ -110,8 +125,8 @@ foreach my $table ( $db->tables ) {
 my %seen;
 
 foreach my $fk ( map { $_->foreign_keys } $db->tables ) {
-    next if exclude( $fk->table->name,    $opts->{exclude} );
-    next if exclude( $fk->to_table->name, $opts->{exclude} );
+    next if exclude( $fk->table->name,    $opts->{exclude}, $opts->{include} );
+    next if exclude( $fk->to_table->name, $opts->{exclude}, $opts->{include} );
 
     my @fcols = $fk->columns;
     my @tcols = $fk->to_columns;

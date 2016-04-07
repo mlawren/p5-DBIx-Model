@@ -27,6 +27,13 @@ opt exclude => (
     default => sub { [] },
 );
 
+opt driver => (
+    alias   => 'd',
+    isa     => 'Str',
+    comment => 'the graphivz driver',
+    default => 'dot',
+);
+
 opt help => (
     alias   => 'h',
     isa     => 'Bool',
@@ -41,6 +48,7 @@ opt name => (
 
 my $opts = optargs;
 $opts->{dsn} = 'dbi:SQLite:dbname=' . $opts->{dsn} if -f $opts->{dsn};
+$opts->{name} ||= $opts->{dsn} =~ s/[^a-zA-z]+/_/gr =~ s/((^_)|(_$))//gr;
 $opts->{format} = $opts->{output} =~ s/.*\.(.*)/$1/r;
 
 my $dbh = DBI->connect( $opts->{dsn} );
@@ -63,10 +71,14 @@ my $graph = GraphViz2->new(
         label   => $db->name,
         rankdir => 'TB',
     },
-    edge   => { color    => 'grey' },
-    global => { directed => 1 },
-    graph  => { rankdir  => 'TB' },
-    node   => {
+    edge   => { color => 'grey' },
+    global => {
+        directed => 1,
+        driver   => $opts->{driver},
+        name     => $opts->{name},
+    },
+    graph => { rankdir => 'TB' },
+    node  => {
         color => 'grey',
         shape => 'oval',
     },
@@ -115,6 +127,8 @@ foreach my $fk ( map { $_->foreign_keys } $db->tables ) {
         );
     }
 }
+
+unlink $opts->{output};
 
 $graph->run(
     format      => $opts->{format},

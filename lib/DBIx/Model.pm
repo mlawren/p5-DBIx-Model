@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use DBIx::Model::DB;
 
+our @VERSION = '0.0.1';
+
 sub DBI::db::model {
     my $dbh = shift;
 

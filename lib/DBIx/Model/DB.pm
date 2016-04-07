@@ -1,10 +1,10 @@
-package db;
+package DBIx::Model::DB;
 use strict;
 use warnings;
 use Type::Tiny;
 use Types::Standard qw/ArrayRef Str/;
 use Moo;
-use table;
+use DBIx::Model::Table;
 
 our $VERSION = '0.0.1';
 
@@ -28,7 +28,7 @@ has name => (
 
 sub add_table {
     my $self = shift;
-    my $table = table->new( @_, db => $self );
+    my $table = DBIx::Model::Table->new( @_, db => $self );
     push( @{ $self->_tables }, $table );
     return $table;
 }

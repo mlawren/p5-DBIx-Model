@@ -1,8 +1,8 @@
-package table;
+package DBIx::Model::Table;
 use strict;
 use warnings;
-use column;
-use fk;
+use DBIx::Model::Column;
+use DBIx::Model::FK;
 use Types::Standard qw/ArrayRef/;
 use Moo;
 
@@ -34,14 +34,14 @@ has _foreign_keys => (
 
 sub add_column {
     my $self = shift;
-    my $col = column->new( @_, table => $self );
+    my $col = DBIx::Model::Column->new( @_, table => $self );
     push( @{ $self->_columns }, $col );
     return $col;
 }
 
 sub add_foreign_key {
     my $self = shift;
-    my $fk = fk->new( @_, table => $self );
+    my $fk = DBIx::Model::FK->new( @_, table => $self );
     push( @{ $self->_foreign_keys }, $fk );
     return $fk;
 }

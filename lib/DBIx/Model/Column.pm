@@ -1,7 +1,6 @@
-package column;
+package DBIx::Model::Column;
 use strict;
 use warnings;
-use column;
 use Moo;
 use Types::Standard qw/ArrayRef Bool Int Str Undef/;
 

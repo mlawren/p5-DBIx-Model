@@ -1,4 +1,4 @@
-package fk;
+package DBIx::Model::FK;
 use strict;
 use warnings;
 use Scalar::Util qw/weaken/;

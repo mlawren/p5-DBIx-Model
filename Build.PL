@@ -5,12 +5,12 @@ use Module::Build::Compat;
 use Module::Build::Pluggable 'CPANfile';
 
 my $builder = Module::Build::Pluggable->new(
-    module_name       => 'db',
+    module_name       => 'DBIx::Model',
     create_license    => 1,
     create_readme     => 1,
     license           => 'GPL_3',
     dist_author       => 'Mark Lawrence <nomad@null.net>',
-    dist_version_from => 'lib/db.pm',
+    dist_version_from => 'lib/DBIx/Model.pm',
     no_index          => {
         package => [],
     },

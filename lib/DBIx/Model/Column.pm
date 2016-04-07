@@ -29,6 +29,12 @@ has size => (
     isa => Int | Undef,
 );
 
+has target_count => (
+    is      => 'rw',
+    isa     => Int,
+    default => 0,
+);
+
 has type => (
     is       => 'ro',
     isa      => Str,
@@ -48,6 +54,12 @@ sub as_string {
     $str .= '(' . $self->size . ')' if $self->size;
     $str .= ' NOT NULL' unless $self->nullable;
     return $str;
+}
+
+sub bump_target_count {
+    my $self = shift;
+    $self->target_count( $self->target_count + 1 );
+    $self->table->bump_target_count;
 }
 
 sub full_name {

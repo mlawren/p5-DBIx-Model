@@ -44,7 +44,7 @@ sub BUILD {
     @list = @{ $self->_to_columns };
     foreach my $i ( 0 .. $#list ) {
         weaken( $self->_to_columns->[$i] );
-        $self->_to_columns->[$i]->table->bump_target_count;
+        $self->_to_columns->[$i]->bump_target_count;
     }
 }
 

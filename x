@@ -31,7 +31,9 @@ opt name => (
     comment => 'name of the database',
 );
 
-my $opts  = optargs;
+my $opts = optargs;
+$opts->{dsn} = 'dbi:SQLite:dbname=' . $opts->{dsn} if -f $opts->{dsn};
+
 my $dbh   = DBI->connect( $opts->{dsn} );
 my $db    = db->new( name => $opts->{dsn} );
 my $t_sth = $dbh->table_info;

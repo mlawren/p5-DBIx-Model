@@ -7,6 +7,7 @@ use DBI;
 use DBIx::Model;
 use GraphViz2;
 use OptArgs;
+use XML::API;
 
 arg dsn => (
     isa      => 'Str',
@@ -83,8 +84,9 @@ sub exclude {
 
 my $graph = GraphViz2->new(
     graph => {
-        label   => $db->name,
-        rankdir => 'TB',
+        label     => $db->name,
+        rankdir   => 'TB',
+        labeljust => 'l',
     },
     edge   => { color => 'grey' },
     global => {
@@ -92,33 +94,73 @@ my $graph = GraphViz2->new(
         driver   => $opts->{driver},
         name     => $opts->{name},
     },
-    graph => { rankdir => 'TB' },
-    node  => {
+    node => {
         color => 'grey',
         shape => 'oval',
     },
 );
 
-foreach my $table ( $db->tables ) {
+my @colors = (
+    qw/
+      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+      gold 	gold1 	gold2 	gold3 	gold4
+      aliceblue 	antiquewhite 	antiquewhite1 	antiquewhite2 	antiquewhite3
+      wheat3 	wheat4 	white 	whitesmoke 	yellow
+      yellow1 	yellow2 	yellow3 	yellow4 	yellowgreen
+      /
+);
+
+my $i = 0;
+my %table_colors;
+foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
+{
+    $table_colors{ $table->name } =
+      $table->target_count ? $colors[ $i++ ] : 'grey';
     next if exclude( $table->name, $opts->{exclude}, $opts->{include} );
 
-    my @labels = ( { text => '{<' . $table->name . '>' . $table->name } );
-    my $i = 1;
+    my $x = XML::API->new;
+    $x->table_open(
+        {
+            align  => 'left',
+            border => 1,
+            color  => 'grey',    #$table_colors{$table->name} || 'grey'
+        }
+    );
+    $x->tr_open;
+    $x->td_open( { align => 'left', border => 0, port => $table->name } );
+    $x->b( $table->name );
+    $x->td_close;
+    $x->tr_close;
+
     foreach my $col ( $table->columns ) {
-        push(
-            @labels,
+        $x->tr_open;
+        $x->td_open(
             {
-                port => '<' . $col->name . '>',
-                text => $col->name . ' ' . $col->type,
-            }
+                align  => 'left',
+                border => 0,
+                port   => $col->name,
+                width  => 5
+            },
+            $col->name . ' '
         );
+        $x->i(
+            lc( $col->size ? $col->type . '(' . $col->size . ')' : $col->type )
+        );
+        $x->td_close;
+        $x->tr_close;
     }
 
-    $labels[$#labels]->{text} .= '}';
+    $x->table_close;
+
+    ( $x = $x->_fast_string ) =~ s/.*?>//m;
 
     $graph->add_node(
-        name  => $table->name,
-        label => \@labels,
+        name   => $table->name,
+        label  => '<' . $x . '>',
+        shape  => 'none',
+        width  => 0,
+        height => 0,
+        margin => 0,
     );
 }
 
@@ -137,8 +179,9 @@ foreach my $fk ( map { $_->foreign_keys } $db->tables ) {
         next if $seen{ $fcol->full_name . $tcol->full_name }++;
 
         $graph->add_edge(
-            from => $fk->table->name . ':' . $fcol->name,
-            to   => $fk->to_table->name . ':' . $tcol->name,
+            from  => $fk->table->name . ':' . $fcol->name,
+            to    => $fk->to_table->name . ':' . $tcol->name,
+            color => $table_colors{ $fk->to_table->name } || 'grey',
         );
     }
 }
@@ -150,3 +193,4 @@ $graph->run(
     output_file => $opts->{output},
 );
 
+#print $graph->dot_input;

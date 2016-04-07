@@ -58,15 +58,63 @@ sub exclude {
     return 0;
 }
 
-print $db->as_string . "\n";
-
 my $graph = GraphViz2->new(
-    graph  => { label    => $db->name, rankdir => 'TB' },
+    graph => {
+        label   => $db->name,
+        rankdir => 'TB',
+    },
     edge   => { color    => 'grey' },
     global => { directed => 1 },
     graph  => { rankdir  => 'TB' },
-    node   => { color    => 'blue',    shape   => 'oval' },
+    node   => {
+        color => 'grey',
+        shape => 'oval',
+    },
 );
+
+foreach my $table ( $db->tables ) {
+    next if exclude( $table->name, $opts->{exclude} );
+
+    my @labels = ( { text => '{<' . $table->name . '>' . $table->name } );
+    my $i = 1;
+    foreach my $col ( $table->columns ) {
+        push(
+            @labels,
+            {
+                port => '<' . $col->name . '>',
+                text => $col->name . ' ' . $col->type,
+            }
+        );
+    }
+
+    $labels[$#labels]->{text} .= '}';
+
+    $graph->add_node(
+        name  => $table->name,
+        label => \@labels,
+    );
+}
+
+my %seen;
+
+foreach my $fk ( map { $_->foreign_keys } $db->tables ) {
+    next if exclude( $fk->table->name,    $opts->{exclude} );
+    next if exclude( $fk->to_table->name, $opts->{exclude} );
+
+    my @fcols = $fk->columns;
+    my @tcols = $fk->to_columns;
+    foreach my $i ( 0 .. $#fcols ) {
+        my $fcol = $fcols[$i];
+        my $tcol = $tcols[$i];
+
+        next if $seen{ $fcol->full_name . $tcol->full_name }++;
+
+        $graph->add_edge(
+            from => $fk->table->name . ':' . $fcol->name,
+            to   => $fk->to_table->name . ':' . $tcol->name,
+        );
+    }
+}
 
 $graph->run(
     format      => $opts->{format},

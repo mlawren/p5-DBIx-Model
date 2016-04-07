@@ -139,7 +139,10 @@ foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
                 align  => 'left',
                 border => 0,
                 port   => $col->name,
-                width  => 5
+                width  => 5,
+                $col->target_count
+                ? ( bgcolor => $table_colors{ $table->name } )
+                : (),
             },
             $col->name . ' '
         );

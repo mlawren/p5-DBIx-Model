@@ -24,11 +24,22 @@ arg output => (
     required => 1,
 );
 
-opt chain_color => (
+opt color => (
     alias   => 'c',
-    isa     => 'Str',
-    comment => 'full | grey | none chain coloring',
-    default => 'full',
+    isa     => 'ArrayRef',
+    comment => 'chain color (use for each chain)',
+    default => [
+        qw/
+          aliceblue
+          wheat3 	wheat4
+          gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+          gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+          gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+          gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+          gold 	gold1 	gold2 	gold3 	gold4
+          yellow1 	yellow2 	yellow3 	yellow4 	yellowgreen
+          /
+    ],
 );
 
 opt exclude => (
@@ -70,19 +81,6 @@ opt rankdir => (
     default => 'TB',
 );
 
-my @colors = (
-    qw/
-      aliceblue
-      wheat3 	wheat4
-      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
-      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
-      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
-      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
-      gold 	gold1 	gold2 	gold3 	gold4
-      yellow1 	yellow2 	yellow3 	yellow4 	yellowgreen
-      /
-);
-
 my $opts = optargs;
 $opts->{dsn} = 'dbi:SQLite:dbname=' . $opts->{dsn} if -f $opts->{dsn};
 $opts->{name} ||= $opts->{dsn} =~ s/[^a-zA-z]+/_/gr =~ s/((^_)|(_$))//gr;
@@ -90,7 +88,7 @@ $opts->{format} = $opts->{output} =~ s/.*\.(.*)/$1/r;
 
 my $dbh = DBI->connect( $opts->{dsn} );
 my $db  = $dbh->model(
-    name    => $opts->{dsn},
+    name    => $opts->{name},
     exclude => $opts->{exclude},
 );
 
@@ -159,28 +157,13 @@ my $graph = GraphViz2->new(
     global => {
         directed => 1,
         driver   => $opts->{driver},
-        name     => $opts->{name},
+        name     => $opts->{name} =~ s/[^a-zA-Z]+/_/,
     },
     node => {
         color => 'grey',
         shape => 'oval',
     },
 );
-
-sub node_color {
-    my $chain = shift || return;
-    return ( bgcolor => $colors[$chain] || 'grey' )
-      if $opts->{chain_color} eq 'full';
-    return ( bgcolor => 'grey' ) if $opts->{chain_color} eq 'grey';
-    return ();
-}
-
-sub edge_color {
-    my $chain = shift;
-    return ( color => $colors[$chain] || 'grey' )
-      if $opts->{chain_color} eq 'full';
-    return ( color => 'grey' );
-}
 
 foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
 {
@@ -208,13 +191,15 @@ foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
                 border => 0,
                 port   => $col->name,
                 width  => 5,
-                node_color( $col->chain ),
+                $col->chain
+                ? ( bgcolor => $opts->{color}->[ $col->chain ] || 'grey' )
+                : (),
             },
             $col->name . ' '
         );
         $x->i(
             lc( $col->size ? $col->type . '(' . $col->size . ')' : $col->type )
-        );
+              . ( $col->nullable ? ' (null)' : '' ) );
         $x->td_close;
         $x->tr_close;
     }
@@ -249,9 +234,9 @@ foreach my $fk ( map { $_->foreign_keys } $db->tables ) {
         next if $seen{ $fcol->full_name . $tcol->full_name }++;
 
         $graph->add_edge(
-            from => $fk->table->name . ':' . $fcol->name,
-            to   => $fk->to_table->name . ':' . $tcol->name,
-            edge_color( $tcol->chain ),
+            from  => $fk->table->name . ':' . $fcol->name,
+            to    => $fk->to_table->name . ':' . $tcol->name,
+            color => $opts->{color}->[ $tcol->chain ] || 'grey',
         );
     }
 }
@@ -264,8 +249,7 @@ $graph->run(
 );
 
 foreach my $chain ( 1 .. $db->chains ) {
-    my @pair = node_color($chain);
-    print "FK Chain $chain: $pair[1]\n";
+    print "FK Chain $chain: " . ( $opts->{color}->[$chain] || 'grey' ) . "\n";
 }
 
 #print $db->as_string;

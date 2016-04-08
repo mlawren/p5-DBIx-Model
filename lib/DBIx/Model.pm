@@ -5,11 +5,15 @@ use DBIx::Model::DB;
 
 our @VERSION = '0.0.1';
 
+my %columns;
+my %forward;
+my %backward;
+
 sub DBI::db::model {
     my $dbh = shift;
 
     my $db = DBIx::Model::DB->new( name => $dbh->{Name}, @_ );
-    my @fk;
+    my @raw_fk;
 
     my $t_sth = $dbh->table_info;
     while ( my $t_ref = $t_sth->fetchrow_hashref ) {
@@ -39,7 +43,7 @@ sub DBI::db::model {
             while ( my $fk_ref = $fk_sth->fetchrow_hashref ) {
                 if ( $fk_ref->{KEY_SEQ} == 1 ) {
                     if (@x) {
-                        push( @fk, [@x] );
+                        push( @raw_fk, [@x] );
                     }
                     @x = (
                         $t_ref->{TABLE_NAME}, $fk_ref->{PKTABLE_NAME},
@@ -54,12 +58,12 @@ sub DBI::db::model {
             }
 
             if (@x) {
-                push( @fk, [@x] );
+                push( @raw_fk, [@x] );
             }
         }
     }
 
-    foreach my $fk (@fk) {
+    foreach my $fk (@raw_fk) {
         my ($from) = grep { $_->name eq $fk->[0] } $db->tables;
         my ($to)   = grep { $_->name eq $fk->[1] } $db->tables;
         shift @$fk;
@@ -78,9 +82,39 @@ sub DBI::db::model {
             columns    => \@from,
             to_columns => \@to,
         );
+
+        map { $columns{ $_->full_name } = $_ } @from, @to;
+        map {
+            $forward{ $to[$_]->full_name }->{ $from[$_]->full_name }++;
+            $backward{ $from[$_]->full_name }->{ $to[$_]->full_name }++;
+        } 0 .. ( ( scalar @from ) - 1 );
+    }
+
+    my $chain = 1;
+    while ( my $key = ( sort keys %forward, keys %backward )[0] ) {
+        chainer( $key, $chain++ );
     }
 
     return $db;
+}
+
+sub chainer {
+    my $key   = shift;
+    my $chain = shift;
+
+    $columns{$key}->chain($chain);
+
+    if ( my $val = delete $forward{$key} ) {
+        foreach my $new ( sort keys %$val ) {
+            chainer( $new, $chain );
+        }
+    }
+
+    if ( my $val = delete $backward{$key} ) {
+        foreach my $new ( sort keys %$val ) {
+            chainer( $new, $chain );
+        }
+    }
 }
 
 1;

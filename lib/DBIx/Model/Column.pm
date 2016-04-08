@@ -6,6 +6,11 @@ use Types::Standard qw/ArrayRef Bool Int Str Undef/;
 
 our $VERSION = '0.0.1';
 
+has chain => (
+    is  => 'rw',
+    isa => Int,
+);
+
 has table => (
     is       => 'ro',
     required => 1,

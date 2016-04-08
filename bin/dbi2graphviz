@@ -83,12 +83,11 @@ opt rankdir => (
 
 my $opts = optargs;
 $opts->{dsn} = 'dbi:SQLite:dbname=' . $opts->{dsn} if -f $opts->{dsn};
-$opts->{name} ||= $opts->{dsn} =~ s/[^a-zA-z]+/_/gr =~ s/((^_)|(_$))//gr;
 $opts->{format} = $opts->{output} =~ s/.*\.(.*)/$1/r;
 
 my $dbh = DBI->connect( $opts->{dsn} );
 my $db  = $dbh->model(
-    name    => $opts->{name},
+    name => $opts->{name} // $opts->{dsn},
     exclude => $opts->{exclude},
 );
 
@@ -157,7 +156,8 @@ my $graph = GraphViz2->new(
     global => {
         directed => 1,
         driver   => $opts->{driver},
-        name     => $opts->{name} =~ s/[^a-zA-Z]+/_/,
+        name     => ( $opts->{name} // $opts->{dsn} ) =~ s/[^a-zA-z]+/_/gr =~
+          s/((^_)|(_$))//gr,
     },
     node => {
         color => 'grey',

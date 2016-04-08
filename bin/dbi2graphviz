@@ -24,6 +24,13 @@ arg output => (
     required => 1,
 );
 
+opt chain_color => (
+    alias   => 'c',
+    isa     => 'Str',
+    comment => 'full | grey | none chain coloring',
+    default => 'full',
+);
+
 opt exclude => (
     alias   => 'e',
     isa     => 'ArrayRef',
@@ -60,7 +67,20 @@ opt rankdir => (
     isa     => 'Str',
     alias   => 'r',
     comment => 'flow direction attribute',
-    default => 'tb',
+    default => 'TB',
+);
+
+my @colors = (
+    qw/
+      aliceblue
+      wheat3 	wheat4
+      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
+      gold 	gold1 	gold2 	gold3 	gold4
+      yellow1 	yellow2 	yellow3 	yellow4 	yellowgreen
+      /
 );
 
 my $opts = optargs;
@@ -109,7 +129,7 @@ $x->tr_open;
 $x->td_open( { align => 'left', } );
 $x->b('Database:');
 $x->td_close;
-$x->td( { align => 'left', }, $db->name );
+$x->td( { align => 'left', colspan => $db->chains }, $db->name );
 $x->tr_close;
 
 $x->tr_open;
@@ -121,7 +141,7 @@ my $tz = sprintf( "%+.2d%.2d",
     int( $t->tzoffset / 3600 ),
     ( abs( $t->tzoffset ) - int( abs( $t->tzoffset ) / 3600 ) * 3600 ) / 60 );
 
-$x->td( { align => 'left', },
+$x->td( { align => 'left', colspan => $db->chains },
     $t->strftime('%F %T') . ' ' . $tz . ' by dbi2graphviz v' . $VERSION );
 $x->tr_close;
 
@@ -147,30 +167,19 @@ my $graph = GraphViz2->new(
     },
 );
 
-my @colors = (
-    qw/
-      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
-      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
-      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
-      gold brown chocolate yellow orange darkorange1 	darkorange2 	darkorange3 	darkorange4 	darkorchid
-      gold 	gold1 	gold2 	gold3 	gold4
-      aliceblue
-      wheat3 	wheat4 	yellow
-      yellow1 	yellow2 	yellow3 	yellow4 	yellowgreen
-      /
-);
+sub node_color {
+    my $chain = shift || return;
+    return ( bgcolor => $colors[$chain] || 'grey' )
+      if $opts->{chain_color} eq 'full';
+    return ( bgcolor => 'grey' ) if $opts->{chain_color} eq 'grey';
+    return ();
+}
 
-my $i = 0;
-my %col_colors;
-my @cols =
-  sort { $b->target_count <=> $a->target_count }
-  grep { $_->target_count }
-  map  { $_->columns } $db->tables;
-
-my %tab;
-foreach my $col (@cols) {
-    $col_colors{ $col->full_name } = $colors[$i];
-    $i++;
+sub edge_color {
+    my $chain = shift;
+    return ( color => $colors[$chain] || 'grey' )
+      if $opts->{chain_color} eq 'full';
+    return ( color => 'grey' );
 }
 
 foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
@@ -192,10 +201,6 @@ foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
     $x->tr_close;
 
     foreach my $col ( $table->columns ) {
-        my $color =
-            $col->target_count ? $col_colors{ $col->full_name }
-          : $col->ref_count    ? 'lightgrey'
-          :                      undef;
         $x->tr_open;
         $x->td_open(
             {
@@ -203,7 +208,7 @@ foreach my $table ( sort { $b->target_count <=> $a->target_count } $db->tables )
                 border => 0,
                 port   => $col->name,
                 width  => 5,
-                $color ? ( bgcolor => $color ) : (),
+                node_color( $col->chain ),
             },
             $col->name . ' '
         );
@@ -244,9 +249,9 @@ foreach my $fk ( map { $_->foreign_keys } $db->tables ) {
         next if $seen{ $fcol->full_name . $tcol->full_name }++;
 
         $graph->add_edge(
-            from  => $fk->table->name . ':' . $fcol->name,
-            to    => $fk->to_table->name . ':' . $tcol->name,
-            color => $col_colors{ $tcol->full_name } || 'grey',
+            from => $fk->table->name . ':' . $fcol->name,
+            to   => $fk->to_table->name . ':' . $tcol->name,
+            edge_color( $tcol->chain ),
         );
     }
 }
@@ -258,4 +263,10 @@ $graph->run(
     output_file => $opts->{output},
 );
 
+foreach my $chain ( 1 .. $db->chains ) {
+    my @pair = node_color($chain);
+    print "FK Chain $chain: $pair[1]\n";
+}
+
+#print $db->as_string;
 #print $graph->dot_input;

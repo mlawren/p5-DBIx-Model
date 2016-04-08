@@ -95,6 +95,7 @@ sub DBI::db::model {
         chainer( $key, $chain++ );
     }
 
+    $db->chains( $chain - 1 );
     return $db;
 }
 

@@ -7,10 +7,14 @@ on configure => sub {
 };
 
 on runtime => sub {
-    requires 'Carp'      => 0;
-    requires 'GraphViz2' => 0;
-    requires 'Moo'       => 0;
-    requires 'OptArgs2'  => 0;
+    requires 'DBI'             => 0;
+    requires 'GraphViz2'       => 0;
+    requires 'Moo'             => 0;
+    requires 'OptArgs2'        => 0;
+    requires 'Scalar::Util'    => 0;
+    requires 'Time::Piece'     => 0;
+    requires 'Types::Standard' => 0;
+    requires 'XML::API'        => 0;
 };
 
 on test => sub {

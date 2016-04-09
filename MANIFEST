@@ -1,0 +1,16 @@
+Build.PL
+Changes
+cpanfile
+lib/DBIx/Model.pm
+lib/DBIx/Model/Column.pm
+lib/DBIx/Model/DB.pm
+lib/DBIx/Model/FK.pm
+lib/DBIx/Model/Table.pm
+MANIFEST			This list of files
+t/Chinook_Sqlite.sqlite
+t/DBIx/Model.t
+TODO
+README
+LICENSE
+META.yml
+META.json

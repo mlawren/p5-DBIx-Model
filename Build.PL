@@ -5,13 +5,13 @@ use Module::Build::Compat;
 use Module::Build::Pluggable 'CPANfile';
 
 my $builder = Module::Build::Pluggable->new(
-    module_name       => 'DBIx::Model',
-    create_license    => 1,
-    create_readme     => 1,
-    license           => 'GPL_3',
-    dist_author       => 'Mark Lawrence <nomad@null.net>',
-    dist_version_from => 'lib/DBIx/Model.pm',
-    no_index          => {
+    module_name    => 'DBIx::Model',
+    create_license => 1,
+    create_readme  => 1,
+    license        => 'GPL_3',
+    dist_author    => 'Mark Lawrence <nomad@null.net>',
+    dist_version   => '0.0.1_1',
+    no_index       => {
         package => [],
     },
     recursive_test_files => 1,

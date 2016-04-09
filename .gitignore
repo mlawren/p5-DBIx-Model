@@ -4,6 +4,7 @@ cover_db/
 .envrc
 _build
 Build
+DBIx-Model*
 Makefile
 Makefile.old
 MANIFEST

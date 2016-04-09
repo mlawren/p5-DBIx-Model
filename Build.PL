@@ -18,10 +18,9 @@ my $builder = Module::Build::Pluggable->new(
     add_to_cleanup       => [ 'db-*', '*.bak', 'blib', 'Makefile' ],
     meta_merge           => {
         resources => {
-
-     #            bugtracker => 'https://github.com/mlawren/p5-OptArgs2/issues',
-     #            repository => 'git://github.com/mlawren/p5-OptArgs2.git',
-     #            homepage   => 'https://github.com/mlawren/p5-OptArgs2',
+            bugtracker => 'https://github.com/mlawren/p5-DBIx-Model/issues',
+            repository => 'git://github.com/mlawren/p5-DBIx-Model.git',
+            homepage   => 'https://github.com/mlawren/p5-DBIx-Model',
         },
         keywords => [],
     },

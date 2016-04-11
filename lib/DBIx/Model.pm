@@ -41,6 +41,8 @@ sub DBI::db::model {
 
             my @x;
             while ( my $fk_ref = $fk_sth->fetchrow_hashref ) {
+                next unless defined $fk_ref->{PKCOLUMN_NAME};    # mysql?
+
                 if ( $fk_ref->{KEY_SEQ} == 1 ) {
                     if (@x) {
                         push( @raw_fk, [@x] );

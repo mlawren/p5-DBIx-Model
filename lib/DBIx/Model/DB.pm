@@ -2,7 +2,7 @@ package DBIx::Model::DB;
 use strict;
 use warnings;
 use Type::Tiny;
-use Types::Standard qw/ArrayRef Int Str/;
+use Types::Standard qw/ArrayRef Int Str Undef/;
 use Moo;
 use DBIx::Model::Table;
 
@@ -12,6 +12,11 @@ my $Table = Type::Tiny->new(
     name       => 'Table',
     constraint => sub { ref($_) eq 'table' },
     message    => sub { "$_ ain't a table" },
+);
+
+has catalog => (
+    is  => 'ro',
+    isa => Str | Undef,
 );
 
 has chains => (
@@ -29,6 +34,16 @@ has name => (
     is       => 'ro',
     isa      => Str,
     required => 1,
+);
+
+has schema => (
+    is  => 'ro',
+    isa => Str | Undef,
+);
+
+has table_types => (
+    is  => 'ro',
+    isa => Str,
 );
 
 sub add_table {

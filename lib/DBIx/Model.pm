@@ -74,8 +74,9 @@ sub DBI::db::model {
     }
 
     foreach my $fk (@raw_fk) {
-        my ($from) = grep { $_->name eq $fk->[0] } $db->tables;
-        my ($to)   = grep { $_->name eq $fk->[1] } $db->tables;
+        my ($from) =
+          grep { lc $_->name eq lc $fk->[0] } $db->tables;
+        my ($to) = grep { lc $_->name eq lc $fk->[1] } $db->tables;
         shift @$fk;
         shift @$fk;
 
@@ -83,8 +84,8 @@ sub DBI::db::model {
         my @to;
 
         foreach my $pair (@$fk) {
-            push( @from, grep { $_->name eq $pair->[0] } $from->columns );
-            push( @to,   grep { $_->name eq $pair->[1] } $to->columns );
+            push( @from, grep { lc $_->name eq lc $pair->[0] } $from->columns );
+            push( @to,   grep { lc $_->name eq lc $pair->[1] } $to->columns );
         }
 
         $from->add_foreign_key(
@@ -93,10 +94,10 @@ sub DBI::db::model {
             to_columns => \@to,
         );
 
-        map { $columns{ $_->full_name } = $_ } @from, @to;
+        map { $columns{ lc $_->full_name } = $_ } @from, @to;
         map {
-            $forward{ $to[$_]->full_name }->{ $from[$_]->full_name }++;
-            $backward{ $from[$_]->full_name }->{ $to[$_]->full_name }++;
+            $forward{ lc $to[$_]->full_name }->{ lc $from[$_]->full_name }++;
+            $backward{ lc $from[$_]->full_name }->{ lc $to[$_]->full_name }++;
         } 0 .. ( ( scalar @from ) - 1 );
     }
 

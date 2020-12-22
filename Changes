@@ -13,7 +13,7 @@
         - None.
 
     Dependencies:
-        - None.
+        - Swap out Moo for Class::Inline generation
 
 0.0.1_1 (2016-04-09)
 

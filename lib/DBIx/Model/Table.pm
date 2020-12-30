@@ -21,6 +21,11 @@ our $INLINE  = {
         is       => 'ro',
         required => 1,
     },
+    name_lc => {
+        is       => 'ro',
+        init_arg => undef,
+        default  => sub { lc $_[0]->name },
+    },
     ref_count => {
         is      => 'rw',
         isa     => Int,
@@ -106,27 +111,30 @@ sub foreign_keys {
   shift;my$self={@_ ? @_ > 1 ? @_ : %{$_[0]}: ()};map {local$Carp::CarpLevel=
   $Carp::CarpLevel + 1;Carp::croak(
   "missing attribute DBIx::Model::Table::$_ is required")unless exists$self->{
-  $_}}'db','name';if (@ATTRS_UNEX){map {local$Carp::CarpLevel=$Carp::CarpLevel
-  + 1;Carp::carp("DBIx::Model::Table attribute '$_' unexpected");delete$self->
-  {$_ }}sort grep {not exists$INLINE->{$_ }}keys %$self}else {@ATTRS_UNEX=map
-  {delete$self->{$_ };$_}grep {not exists$INLINE->{$_ }}keys %$self}bless$self
-  ,ref$class || $class;map {$self->{$_ }=eval {$INLINE->{$_ }->{'isa'}->($self
-  ->{$_ })};Carp::croak(qq{DBIx::Model::Table::$_ value invalid ($@)})if $@}
-  grep {exists$self->{$_ }}'_columns','_foreign_keys','ref_count',
-  'target_count';map {Scalar::Util::weaken($self->{$_ })}grep {defined$self->{
-  $_ }// undef}'db';$self}sub __ro {my (undef,undef,undef,$sub)=caller(1);
-  local$Carp::CarpLevel=$Carp::CarpLevel + 1;Carp::croak(
-  "attribute $sub is read-only (value: '" .($_[1]// 'undef')."')")}sub
-  _columns {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'_columns'}//= eval {$INLINE->{
-  '_columns'}->{'isa'}->($INLINE->{'_columns'}->{'default'}->($_[0]))};
-  Carp::croak('invalid (DBIx::Model::Table::_columns) default value: ' .$@)if
-  $@;$_[0]{'_columns'}}sub _foreign_keys {$_[0]->__ro($_[1])if @_ > 1;$_[0]{
+  $_}}'db','name';map {delete$self->{$_}}'name_lc';if (@ATTRS_UNEX){map {local
+  $Carp::CarpLevel=$Carp::CarpLevel + 1;Carp::carp(
+  "DBIx::Model::Table attribute '$_' unexpected");delete$self->{$_ }}sort grep
+  {not exists$INLINE->{$_ }}keys %$self}else {@ATTRS_UNEX=map {delete$self->{
+  $_ };$_}grep {not exists$INLINE->{$_ }}keys %$self}bless$self,ref$class ||
+  $class;map {$self->{$_ }=eval {$INLINE->{$_ }->{'isa'}->($self->{$_ })};
+  Carp::croak(qq{DBIx::Model::Table::$_ value invalid ($@)})if $@}grep {exists
+  $self->{$_ }}'_columns','_foreign_keys','ref_count','target_count';map {
+  Scalar::Util::weaken($self->{$_ })}grep {defined$self->{$_ }// undef}'db';
+  $self}sub __ro {my (undef,undef,undef,$sub)=caller(1);local$Carp::CarpLevel=
+  $Carp::CarpLevel + 1;Carp::croak("attribute $sub is read-only (value: '" .(
+  $_[1]// 'undef')."')")}sub _columns {$_[0]->__ro($_[1])if @_ > 1;$_[0]{
+  '_columns'}//= eval {$INLINE->{'_columns'}->{'isa'}->($INLINE->{'_columns'}
+  ->{'default'}->($_[0]))};Carp::croak(
+  'invalid (DBIx::Model::Table::_columns) default value: ' .$@)if $@;$_[0]{
+  '_columns'}}sub _foreign_keys {$_[0]->__ro($_[1])if @_ > 1;$_[0]{
   '_foreign_keys'}//= eval {$INLINE->{'_foreign_keys'}->{'isa'}->($INLINE->{
   '_foreign_keys'}->{'default'}->($_[0]))};Carp::croak(
   'invalid (DBIx::Model::Table::_foreign_keys) default value: ' .$@)if $@;$_[0
   ]{'_foreign_keys'}}sub db {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'db'}}sub name
-  {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'name'}}sub ref_count {if (@_ > 1){$_[0]{
-  'ref_count'}=eval {$INLINE->{'ref_count'}->{'isa'}->($_[1])};Carp::croak(
+  {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'name'}}sub name_lc {$_[0]->__ro($_[1])if
+  @_ > 1;$_[0]{'name_lc'}//= $INLINE->{'name_lc'}->{'default'}->($_[0])}sub
+  ref_count {if (@_ > 1){$_[0]{'ref_count'}=eval {$INLINE->{'ref_count'}->{
+  'isa'}->($_[1])};Carp::croak(
   'invalid (DBIx::Model::Table::ref_count) value: '.$@)if $@;return $_[0]}$_[0
   ]{'ref_count'}//= eval {$INLINE->{'ref_count'}->{'isa'}->($INLINE->{
   'ref_count'}->{'default'})};Carp::croak(

@@ -1,16 +1,13 @@
 0.0.1_2 (yyyy-mm-dd)
 
     API / Behaviour Changes:
-        - None.
+        - model() now takes the same arguments as DBI->table_info()
 
     New Features:
-        - None.
+        - Add a DBix::Model::Table->type attribute
 
     Enhancements:
-        - None.
-
-    Bug Fixes:
-        - None.
+        - List tables in alphabetical order
 
     Dependencies:
         - Swap out Moo for Class::Inline generation

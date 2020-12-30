@@ -27,14 +27,12 @@ sub DBI::db::model {
     my $t_sth =
       $dbh->table_info( $db->catalog, $db->schema, $names, $db->table_types );
 
-    while ( my $t_ref = $t_sth->fetchrow_hashref ) {
-        my $table = $db->add_table( name => $t_ref->{TABLE_NAME} );
-        my @primary =
-          $dbh->primary_key( $db->catalog, $db->schema, $t_ref->{TABLE_NAME} );
+    my @table_names = sort keys %{ $t_sth->fetchall_hashref('TABLE_NAME') };
+    foreach my $tname (@table_names) {
+        my $table   = $db->add_table( name => $tname );
+        my @primary = $dbh->primary_key( $db->catalog, $db->schema, $tname );
 
-        my $c_sth =
-          $dbh->column_info( $db->catalog, $db->schema,
-            $t_ref->{TABLE_NAME}, '%' );
+        my $c_sth = $dbh->column_info( $db->catalog, $db->schema, $tname, '%' );
 
         while ( my $c_ref = $c_sth->fetchrow_hashref ) {
             my $pri = grep { $c_ref->{COLUMN_NAME} eq $_ } @primary;
@@ -49,7 +47,7 @@ sub DBI::db::model {
 
         my $fk_sth =
           $dbh->foreign_key_info( $db->catalog, $db->schema, undef,
-            $db->catalog, $db->schema, $t_ref->{TABLE_NAME} );
+            $db->catalog, $db->schema, $tname );
 
         my @x;
         while ( my $fk_ref = $fk_sth->fetchrow_hashref ) {
@@ -60,7 +58,7 @@ sub DBI::db::model {
                     push( @raw_fk, [@x] );
                 }
                 @x = (
-                    lc $t_ref->{TABLE_NAME},
+                    lc $tname,
                     lc $fk_ref->{PKTABLE_NAME},
                     [
                         lc $fk_ref->{FKCOLUMN_NAME}, lc $fk_ref->{PKCOLUMN_NAME}

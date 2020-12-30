@@ -4,7 +4,7 @@ use warnings;
 use Scalar::Util qw/weaken/;
 use Types::Standard qw/ArrayRef/;
 
-our $VERSION = '0.0.1_2';
+our $VERSION = '0.0.1';
 our $INLINE  = {
     _columns => {
         is       => 'ro',

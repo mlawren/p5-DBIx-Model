@@ -5,7 +5,7 @@ use Type::Tiny;
 use Types::Standard qw/ArrayRef Int Str Undef/;
 use DBIx::Model::Table;
 
-our $VERSION = '0.0.1_2';
+our $VERSION = '0.0.1';
 
 my $Table = Type::Tiny->new(
     name       => 'Table',

@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Types::Standard qw/ArrayRef Bool Int Str Undef/;
 
-our $VERSION = '0.0.1_2';
+our $VERSION = '0.0.1';
 our $INLINE  = {
     chain => {
         is  => 'rw',

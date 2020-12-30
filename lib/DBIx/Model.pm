@@ -57,14 +57,20 @@ sub DBI::db::model {
                     push( @raw_fk, [@x] );
                 }
                 @x = (
-                    $t_ref->{TABLE_NAME},
-                    $fk_ref->{PKTABLE_NAME},
-                    [ $fk_ref->{FKCOLUMN_NAME}, $fk_ref->{PKCOLUMN_NAME} ]
+                    lc $t_ref->{TABLE_NAME},
+                    lc $fk_ref->{PKTABLE_NAME},
+                    [
+                        lc $fk_ref->{FKCOLUMN_NAME}, lc $fk_ref->{PKCOLUMN_NAME}
+                    ]
                 );
             }
             else {
-                push( @x,
-                    [ $fk_ref->{FKCOLUMN_NAME}, $fk_ref->{PKCOLUMN_NAME} ] );
+                push(
+                    @x,
+                    [
+                        lc $fk_ref->{FKCOLUMN_NAME}, lc $fk_ref->{PKCOLUMN_NAME}
+                    ]
+                );
             }
         }
 
@@ -75,8 +81,8 @@ sub DBI::db::model {
 
     foreach my $fk (@raw_fk) {
         my ($from) =
-          grep { lc $_->name eq lc $fk->[0] } $db->tables;
-        my ($to) = grep { lc $_->name eq lc $fk->[1] } $db->tables;
+          grep { $_->name_lc eq $fk->[0] } $db->tables;
+        my ($to) = grep { $_->name_lc eq $fk->[1] } $db->tables;
         shift @$fk;
         shift @$fk;
 
@@ -84,8 +90,8 @@ sub DBI::db::model {
         my @to;
 
         foreach my $pair (@$fk) {
-            push( @from, grep { lc $_->name eq lc $pair->[0] } $from->columns );
-            push( @to,   grep { lc $_->name eq lc $pair->[1] } $to->columns );
+            push( @from, grep { $_->name_lc eq $pair->[0] } $from->columns );
+            push( @to,   grep { $_->name_lc eq $pair->[1] } $to->columns );
         }
 
         $from->add_foreign_key(
@@ -94,10 +100,10 @@ sub DBI::db::model {
             to_columns => \@to,
         );
 
-        map { $columns{ lc $_->full_name } = $_ } @from, @to;
+        map { $columns{ $_->full_name_lc } = $_ } @from, @to;
         map {
-            $forward{ lc $to[$_]->full_name }->{ lc $from[$_]->full_name }++;
-            $backward{ lc $from[$_]->full_name }->{ lc $to[$_]->full_name }++;
+            $forward{ $to[$_]->full_name_lc }->{ $from[$_]->full_name_lc }++;
+            $backward{ $from[$_]->full_name_lc }->{ $to[$_]->full_name_lc }++;
         } 0 .. ( ( scalar @from ) - 1 );
     }
 

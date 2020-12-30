@@ -142,7 +142,73 @@ sub chainer {
 
 1;
 
+__END__
+
+=encoding utf8
+
 =head1 NAME
 
-DBIx::Model - build a Perl object model of a database
+DBIx::Model - Build Perl objects of a database schema
+
+=head1 VERSION
+
+0.0.1_2 (yyyy-mm-dd)
+
+=head1 SYNOPSIS
+
+    use DBI;
+    use DBIx::Model;
+
+    my $dbh   = DBI->connect('dbi:SQLite:dbname=test.sqlite');
+    my $model = $dbh->model;
+
+    foreach my $table ( $model->tables ) {
+        print $table->name . ' (' . $table->type . ")\n";
+        foreach my $col ( $table->columns ) {
+            print '  ' . $col->name;
+            print ' ' . $col->type;
+            print ' ' . ( $col->nullable ? '' : 'NOT NULL' );
+            print "\n";
+        }
+    }
+
+=head1 DESCRIPTION
+
+B<DBIx::Model> builds Perl objects that reflect a database's schema,
+using the standard C<table_info()>, C<column_info()>,
+C<foreign_key_info()> and C<primary_key()> methods from L<DBI>.
+
+=head1 INTERFACE
+
+=head2 C<model( $catalog, $schema, $name, $type )>
+
+Takes exactly the same arguments as C<DBI::table_info()> and method
+returns a L<DBIx::Model::DB> object.
+
+=head1 SEE ALSO
+
+L<DBIx::Model::DB> - database object holding tables.
+
+L<DBIx::Model::Table> - table objects holding columns and foreign key
+info
+
+L<DBIx::Model::Column> - column objects with references to foreign
+columns
+
+L<DBIx::Model::FK> - foreign key relationships
+
+L<dbi2graphviz> - create schema diagrams using L<GraphViz2>.
+
+=head1 AUTHOR
+
+Mark Lawrence <nomad@null.net>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2016,2020 Mark Lawrence <nomad@null.net>
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 3 of the License, or (at your
+option) any later version.
 

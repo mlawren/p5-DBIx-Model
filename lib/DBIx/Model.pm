@@ -114,6 +114,7 @@ sub DBI::db::model {
     }
 
     $db->chains( $chain - 1 );
+    %columns = %forward = %backward = ();
     return $db;
 }
 

@@ -27,11 +27,14 @@ sub DBI::db::model {
     my $t_sth =
       $dbh->table_info( $db->catalog, $db->schema, $names, $db->table_types );
 
-    my @table_names = sort keys %{ $t_sth->fetchall_hashref('TABLE_NAME') };
-    foreach my $tname (@table_names) {
-        my $table   = $db->add_table( name => $tname );
-        my @primary = $dbh->primary_key( $db->catalog, $db->schema, $tname );
+    my $trefs = $t_sth->fetchall_hashref('TABLE_NAME');
+    foreach my $tname ( sort keys %$trefs ) {
+        my $table = $db->add_table(
+            name => $tname,
+            type => $trefs->{$tname}->{TABLE_TYPE}
+        );
 
+        my @primary = $dbh->primary_key( $db->catalog, $db->schema, $tname );
         my $c_sth = $dbh->column_info( $db->catalog, $db->schema, $tname, '%' );
 
         while ( my $c_ref = $c_sth->fetchrow_hashref ) {

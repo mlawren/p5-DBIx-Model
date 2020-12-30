@@ -1,3 +1,17 @@
+0.0.1_2 (2020-12-30)
+
+    API / Behaviour Changes:
+        - model() now takes the same arguments as DBI->table_info()
+
+    New Features:
+        - Add a DBix::Model::Table->type attribute
+
+    Enhancements:
+        - List tables in alphabetical order
+
+    Dependencies:
+        - Swap out Moo for Class::Inline generation
+
 0.0.1_1 (2016-04-09)
 
     Initial release.

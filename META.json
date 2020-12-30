@@ -1,40 +1,38 @@
 {
-   "abstract" : "build a Perl object model of a database",
+   "abstract" : "DBI extension for table_info as objects",
    "author" : [
       "Mark Lawrence <nomad@null.net>"
    ],
-   "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.421",
-   "keywords" : [],
+   "dynamic_config" : 0,
+   "generated_by" : "ExtUtils::MakeMaker version 7.34, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "gpl_3"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
-      "version" : "2"
+      "version" : 2
    },
    "name" : "DBIx-Model",
    "no_index" : {
-      "package" : []
+      "directory" : [
+         "t",
+         "inc"
+      ]
    },
    "prereqs" : {
       "build" : {
          "requires" : {
-            "Module::Build::Pluggable::CPANfile" : "0.05"
+            "ExtUtils::MakeMaker" : "0"
          }
       },
       "configure" : {
          "requires" : {
-            "File::Spec" : "0",
-            "Module::Build" : "0.4004",
-            "Module::Build::Pluggable" : "0",
-            "Module::Build::Pluggable::CPANfile" : "0.05"
+            "ExtUtils::MakeMaker::CPANfile" : "0.09"
          }
       },
       "runtime" : {
          "requires" : {
             "DBI" : "0",
-            "Moo" : "0",
             "Scalar::Util" : "0",
             "Types::Standard" : "0"
          }
@@ -46,19 +44,14 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "unstable",
    "resources" : {
-      "bugtracker" : {
-         "web" : "https://github.com/mlawren/p5-DBIx-Model/issues"
-      },
-      "homepage" : "https://github.com/mlawren/p5-DBIx-Model",
-      "license" : [
-         "http://www.gnu.org/licenses/gpl-3.0.txt"
-      ],
+      "bugtracker" : {},
       "repository" : {
-         "url" : "git://github.com/mlawren/p5-DBIx-Model.git"
+         "type" : "git",
+         "url" : "ssh://git@github.com/mlawren/p5-DBIx-Model.git"
       }
    },
-   "version" : "v0.0.1_1",
-   "x_serialization_backend" : "JSON::PP version 2.27300"
+   "version" : "v0.0.1_2",
+   "x_serialization_backend" : "JSON::PP version 4.02"
 }

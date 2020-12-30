@@ -1,35 +1,29 @@
 ---
-abstract: 'build a Perl object model of a database'
+abstract: 'DBI extension for table_info as objects'
 author:
   - 'Mark Lawrence <nomad@null.net>'
 build_requires:
-  Module::Build::Pluggable::CPANfile: '0.05'
+  ExtUtils::MakeMaker: '0'
   Test2::Bundle::Extended: '0'
   Test2::Require::Module: '0'
 configure_requires:
-  File::Spec: '0'
-  Module::Build: '0.4004'
-  Module::Build::Pluggable: '0'
-  Module::Build::Pluggable::CPANfile: '0.05'
-dynamic_config: 1
-generated_by: 'Module::Build version 0.421, CPAN::Meta::Converter version 2.150005'
-keywords: []
+  ExtUtils::MakeMaker::CPANfile: '0.09'
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 7.34, CPAN::Meta::Converter version 2.150010'
 license: gpl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: '1.4'
 name: DBIx-Model
 no_index:
-  package: []
+  directory:
+    - t
+    - inc
 requires:
   DBI: '0'
-  Moo: '0'
   Scalar::Util: '0'
   Types::Standard: '0'
 resources:
-  bugtracker: https://github.com/mlawren/p5-DBIx-Model/issues
-  homepage: https://github.com/mlawren/p5-DBIx-Model
-  license: http://www.gnu.org/licenses/gpl-3.0.txt
-  repository: git://github.com/mlawren/p5-DBIx-Model.git
-version: v0.0.1_1
-x_serialization_backend: 'CPAN::Meta::YAML version 0.012'
+  repository: ssh://git@github.com/mlawren/p5-DBIx-Model.git
+version: v0.0.1_2
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

@@ -10,19 +10,22 @@ my %forward;
 my %backward;
 
 sub DBI::db::model {
-    my $dbh = shift;
+    my $dbh     = shift;
+    my $catalog = shift;
+    my $schema  = shift;
+    my $names   = shift // '%';
+    my $type    = shift // 'TABLE,VIEW';
 
     my $db = DBIx::Model::DB->new(
-        catalog     => undef,
         name        => $dbh->{Name},
-        schema      => undef,
-        table_types => 'TABLE,VIEW',
-        @_,
+        catalog     => $catalog,
+        schema      => $schema,
+        table_types => $type,
     );
     my @raw_fk;
 
     my $t_sth =
-      $dbh->table_info( $db->catalog, $db->schema, '%', $db->table_types );
+      $dbh->table_info( $db->catalog, $db->schema, $names, $db->table_types );
 
     while ( my $t_ref = $t_sth->fetchrow_hashref ) {
         my $table = $db->add_table( name => $t_ref->{TABLE_NAME} );

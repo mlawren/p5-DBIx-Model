@@ -152,7 +152,7 @@ DBIx::Model - Build Perl objects of a database schema
 
 =head1 VERSION
 
-0.0.1 (yyyy-mm-dd)
+0.0.1 (2020-12-31)
 
 =head1 SYNOPSIS
 

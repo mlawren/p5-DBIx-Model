@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use DBIx::Model::DB;
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.0.2';
 
 my %columns;
 my %forward;
@@ -152,7 +152,7 @@ DBIx::Model - Build Perl objects of a database schema
 
 =head1 VERSION
 
-0.0.1 (2020-12-31)
+0.0.2 (yyyy-mm-dd)
 
 =head1 SYNOPSIS
 

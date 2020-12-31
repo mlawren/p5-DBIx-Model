@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Types::Standard qw/ArrayRef Bool Int Str Undef/;
 
-our $VERSION = '0.0.1_2';
+our $VERSION = '0.0.1';
 our $INLINE  = {
     chain => {
         is  => 'rw',
@@ -101,14 +101,18 @@ sub bump_target_count {
   $class || $class;map {$self->{$_ }=eval {$INLINE->{$_ }->{'isa'}->($self->{
   $_ })};Carp::croak(qq{DBIx::Model::Column::$_ value invalid ($@)})if $@}grep
   {exists$self->{$_ }}'chain','name','nullable','primary','ref_count','size',
-  'target_count','type';map {Scalar::Util::weaken($self->{$_ })}grep {defined
-  $self->{$_ }// undef}'table';$self}sub __ro {my (undef,undef,undef,$sub)=
-  caller(1);local$Carp::CarpLevel=$Carp::CarpLevel + 1;Carp::croak(
-  "attribute $sub is read-only (value: '" .($_[1]// 'undef')."')")}sub chain {
-  if (@_ > 1){$_[0]{'chain'}=eval {$INLINE->{'chain'}->{'isa'}->($_[1])};
-  Carp::croak('invalid (DBIx::Model::Column::chain) value: '.$@)if $@;return
-  $_[0]}$_[0]{'chain'}// undef}sub full_name {$_[0]->__ro($_[1])if @_ > 1;$_[0
-  ]{'full_name'}//= $INLINE->{'full_name'}->{'default'}->($_[0])}sub
+  'target_count','type';map {Scalar::Util::weaken($self->{$_ })}grep {exists(
+  $self->{$_})&& defined$self->{$_ }}'table';my@check=('DBIx::Model::Column');
+  my@parents;while (@check){no strict 'refs';my$c=shift@check;push@parents,@{
+  $c .'::ISA'};push@check,@{$c .'::ISA'}}map {$_->BUILD()if exists &{$_.
+  '::BUILD'}}reverse@parents;$self->BUILD()if exists &{'BUILD'};$self}sub __ro
+  {my (undef,undef,undef,$sub)=caller(1);local$Carp::CarpLevel=
+  $Carp::CarpLevel + 1;Carp::croak("attribute $sub is read-only (value: '" .(
+  $_[1]// 'undef')."')")}sub chain {if (@_ > 1){$_[0]{'chain'}=eval {$INLINE->
+  {'chain'}->{'isa'}->($_[1])};Carp::croak(
+  'invalid (DBIx::Model::Column::chain) value: '.$@)if $@;return $_[0]}$_[0]{
+  'chain'}// undef}sub full_name {$_[0]->__ro($_[1])if @_ > 1;$_[0]{
+  'full_name'}//= $INLINE->{'full_name'}->{'default'}->($_[0])}sub
   full_name_lc {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'full_name_lc'}//= $INLINE->
   {'full_name_lc'}->{'default'}->($_[0])}sub name {$_[0]->__ro($_[1])if @_ > 1
   ;$_[0]{'name'}}sub name_lc {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'name_lc'}//=

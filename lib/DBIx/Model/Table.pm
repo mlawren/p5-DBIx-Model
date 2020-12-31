@@ -5,7 +5,7 @@ use DBIx::Model::Column;
 use DBIx::Model::FK;
 use Types::Standard qw/ArrayRef Int/;
 
-our $VERSION = '0.0.1_2';
+our $VERSION = '0.0.1';
 our $INLINE  = {
     _columns => {
         is      => 'ro',
@@ -123,14 +123,17 @@ sub foreign_keys {
   $class;map {$self->{$_ }=eval {$INLINE->{$_ }->{'isa'}->($self->{$_ })};
   Carp::croak(qq{DBIx::Model::Table::$_ value invalid ($@)})if $@}grep {exists
   $self->{$_ }}'_columns','_foreign_keys','ref_count','target_count';map {
-  Scalar::Util::weaken($self->{$_ })}grep {defined$self->{$_ }// undef}'db';
-  $self}sub __ro {my (undef,undef,undef,$sub)=caller(1);local$Carp::CarpLevel=
-  $Carp::CarpLevel + 1;Carp::croak("attribute $sub is read-only (value: '" .(
-  $_[1]// 'undef')."')")}sub _columns {$_[0]->__ro($_[1])if @_ > 1;$_[0]{
-  '_columns'}//= eval {$INLINE->{'_columns'}->{'isa'}->($INLINE->{'_columns'}
-  ->{'default'}->($_[0]))};Carp::croak(
-  'invalid (DBIx::Model::Table::_columns) default value: ' .$@)if $@;$_[0]{
-  '_columns'}}sub _foreign_keys {$_[0]->__ro($_[1])if @_ > 1;$_[0]{
+  Scalar::Util::weaken($self->{$_ })}grep {exists($self->{$_})&& defined$self
+  ->{$_ }}'db';my@check=('DBIx::Model::Table');my@parents;while (@check){no
+  strict 'refs';my$c=shift@check;push@parents,@{$c .'::ISA'};push@check,@{$c .
+  '::ISA'}}map {$_->BUILD()if exists &{$_.'::BUILD'}}reverse@parents;$self->
+  BUILD()if exists &{'BUILD'};$self}sub __ro {my (undef,undef,undef,$sub)=
+  caller(1);local$Carp::CarpLevel=$Carp::CarpLevel + 1;Carp::croak(
+  "attribute $sub is read-only (value: '" .($_[1]// 'undef')."')")}sub
+  _columns {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'_columns'}//= eval {$INLINE->{
+  '_columns'}->{'isa'}->($INLINE->{'_columns'}->{'default'}->($_[0]))};
+  Carp::croak('invalid (DBIx::Model::Table::_columns) default value: ' .$@)if
+  $@;$_[0]{'_columns'}}sub _foreign_keys {$_[0]->__ro($_[1])if @_ > 1;$_[0]{
   '_foreign_keys'}//= eval {$INLINE->{'_foreign_keys'}->{'isa'}->($INLINE->{
   '_foreign_keys'}->{'default'}->($_[0]))};Carp::croak(
   'invalid (DBIx::Model::Table::_foreign_keys) default value: ' .$@)if $@;$_[0

@@ -44,7 +44,7 @@
          }
       }
    },
-   "release_status" : "unstable",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {},
       "repository" : {
@@ -52,6 +52,6 @@
          "url" : "ssh://git@github.com/mlawren/p5-DBIx-Model.git"
       }
    },
-   "version" : "v0.0.1_2",
+   "version" : "v0.0.1",
    "x_serialization_backend" : "JSON::PP version 4.02"
 }

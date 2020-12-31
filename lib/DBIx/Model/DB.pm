@@ -5,7 +5,7 @@ use Type::Tiny;
 use Types::Standard qw/ArrayRef Int Str Undef/;
 use DBIx::Model::Table;
 
-our $VERSION = '0.0.1_2';
+our $VERSION = '0.0.1';
 
 my $Table = Type::Tiny->new(
     name       => 'Table',
@@ -78,17 +78,21 @@ sub as_string {
   $self}bless$self,ref$class || $class;map {$self->{$_ }=eval {$INLINE->{$_ }
   ->{'isa'}->($self->{$_ })};Carp::croak(
   qq{DBIx::Model::DB::$_ value invalid ($@)})if $@}grep {exists$self->{$_ }}
-  '_tables','catalog','chains','name','schema','table_types';$self}sub __ro {
-  my (undef,undef,undef,$sub)=caller(1);local$Carp::CarpLevel=$Carp::CarpLevel
-  + 1;Carp::croak("attribute $sub is read-only (value: '" .($_[1]// 'undef').
-  "')")}sub _tables {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'_tables'}//= eval {
-  $INLINE->{'_tables'}->{'isa'}->($INLINE->{'_tables'}->{'default'}->($_[0]))}
-  ;Carp::croak('invalid (DBIx::Model::DB::_tables) default value: ' .$@)if $@;
-  $_[0]{'_tables'}}sub catalog {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'catalog'}//
-  undef}sub chains {if (@_ > 1){$_[0]{'chains'}=eval {$INLINE->{'chains'}->{
-  'isa'}->($_[1])};Carp::croak('invalid (DBIx::Model::DB::chains) value: '.$@)
-  if $@;return $_[0]}$_[0]{'chains'}// undef}sub name {$_[0]->__ro($_[1])if @_
-  > 1;$_[0]{'name'}}sub schema {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'schema'}//
+  '_tables','catalog','chains','name','schema','table_types';my@check=(
+  'DBIx::Model::DB');my@parents;while (@check){no strict 'refs';my$c=shift
+  @check;push@parents,@{$c .'::ISA'};push@check,@{$c .'::ISA'}}map {$_->BUILD(
+  )if exists &{$_.'::BUILD'}}reverse@parents;$self->BUILD()if exists &{'BUILD'
+  };$self}sub __ro {my (undef,undef,undef,$sub)=caller(1);local
+  $Carp::CarpLevel=$Carp::CarpLevel + 1;Carp::croak(
+  "attribute $sub is read-only (value: '" .($_[1]// 'undef')."')")}sub _tables
+  {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'_tables'}//= eval {$INLINE->{'_tables'}
+  ->{'isa'}->($INLINE->{'_tables'}->{'default'}->($_[0]))};Carp::croak(
+  'invalid (DBIx::Model::DB::_tables) default value: ' .$@)if $@;$_[0]{
+  '_tables'}}sub catalog {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'catalog'}// undef
+  }sub chains {if (@_ > 1){$_[0]{'chains'}=eval {$INLINE->{'chains'}->{'isa'}
+  ->($_[1])};Carp::croak('invalid (DBIx::Model::DB::chains) value: '.$@)if $@;
+  return $_[0]}$_[0]{'chains'}// undef}sub name {$_[0]->__ro($_[1])if @_ > 1;
+  $_[0]{'name'}}sub schema {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'schema'}//
   undef}sub table_types {$_[0]->__ro($_[1])if @_ > 1;$_[0]{'table_types'}//
   undef}
 #>>>

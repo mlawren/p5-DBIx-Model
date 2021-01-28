@@ -84,31 +84,44 @@ sub DBI::db::model {
     }
 
     foreach my $fk (@raw_fk) {
-        my ($from) =
-          grep { $_->name_lc eq $fk->[0] } $db->tables;
-        my ($to) = grep { $_->name_lc eq $fk->[1] } $db->tables;
-        shift @$fk;
-        shift @$fk;
-
-        my @from;
-        my @to;
-
-        foreach my $pair (@$fk) {
-            push( @from, grep { $_->name_lc eq $pair->[0] } $from->columns );
-            push( @to,   grep { $_->name_lc eq $pair->[1] } $to->columns );
+        my ($from_table) = grep { $_->name_lc eq $fk->[0] } $db->tables;
+        unless ($from_table) {
+            warn "FK (source) table not found: $fk->[0]";
+            next;
         }
 
-        $from->add_foreign_key(
-            to_table   => $to,
-            columns    => \@from,
-            to_columns => \@to,
+        my ($to_table) = grep { $_->name_lc eq $fk->[1] } $db->tables;
+        unless ($to_table) {
+            warn "FK (destination) table not found: $fk->[1]";
+            next;
+        }
+
+        shift @$fk;
+        shift @$fk;
+
+        my @from_cols;
+        my @to_cols;
+
+        foreach my $pair (@$fk) {
+            push( @from_cols,
+                grep { $_->name_lc eq $pair->[0] } $from_table->columns );
+            push( @to_cols,
+                grep { $_->name_lc eq $pair->[1] } $to_table->columns );
+        }
+
+        $from_table->add_foreign_key(
+            to_table   => $to_table,
+            columns    => \@from_cols,
+            to_columns => \@to_cols,
         );
 
-        map { $columns{ $_->full_name_lc } = $_ } @from, @to;
+        map { $columns{ $_->full_name_lc } = $_ } @from_cols, @to_cols;
         map {
-            $forward{ $to[$_]->full_name_lc }->{ $from[$_]->full_name_lc }++;
-            $backward{ $from[$_]->full_name_lc }->{ $to[$_]->full_name_lc }++;
-        } 0 .. ( ( scalar @from ) - 1 );
+            $forward{ $to_cols[$_]->full_name_lc }
+              ->{ $from_cols[$_]->full_name_lc }++;
+            $backward{ $from_cols[$_]->full_name_lc }
+              ->{ $to_cols[$_]->full_name_lc }++;
+        } 0 .. ( ( scalar @from_cols ) - 1 );
     }
 
     my $chain = 1;

@@ -10,7 +10,8 @@
         - None.
 
     Bug Fixes:
-        - None.
+        - Do not crash when database DDL REFERENCES point to missing
+          tables/columns.
 
     Dependencies:
         - None.
